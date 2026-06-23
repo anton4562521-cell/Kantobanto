@@ -616,16 +616,13 @@ textarea.form-input { resize: none; }
 </div>
 
 <!-- SUCCESS MODAL -->
+<!-- SUCCESS MODAL -->
 <div id="successOverlay" class="overlay" onclick="if(event.target===this)closeSuccess()">
   <div class="modal-box">
     <div class="modal-icon">✅</div>
     <h3 class="modal-title">Заказ принят!</h3>
     <div id="successOrderNum" class="modal-order-num"></div>
-    <p class="modal-body">Ваш заказ сохранён и уже виден нашим менеджерам. Мы свяжемся с вами в течение 5 минут. Также открылся Telegram — нажмите «Отправить» для подтверждения.</p>
-    <a class="contact-row" id="successChipBot" target="_blank" rel="noopener">
-      <span class="chip-icon">🤖</span>
-      <span class="row-text"><span class="row-title">Бот заказов</span><span class="row-sub">@fortoona_bot</span></span>
-    </a>
+    <p class="modal-body">Заказ успешно создан и уже обрабатывается менеджером. Пожалуйста, ожидайте, мы свяжемся с вами в течение 5 минут для подтверждения всех деталей.</p>
     <button class="btn-primary mt-16" style="width:100%;" onclick="closeSuccess()">Отлично!</button>
   </div>
 </div>
