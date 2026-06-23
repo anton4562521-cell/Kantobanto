@@ -81,7 +81,7 @@ window._initPush = async function() {
     if (permission === 'granted') {
       // VAPID key from Firebase console — replace with your own if needed
       const token = await getToken(messaging, {
-        vapidKey: 'BPdxb5Q0VjF3RHpL7Nm4wX8gKfY2sEcTjAqWvZoIuMdCaRhNbOeSlPkDgJiHtFwUxByVzLmYrQcTs01N'
+        vapidKey: 'BAE-HBZj72MorMryeBi173OIh_VopWsAv3rvJBOQzP-vLqXT81I_P9GesZf-ifr9-Jf8G7iqXszgjp8oSe02my4'
       }).catch(() => null);
       if (token) {
         // Save token to Firestore for the current user
