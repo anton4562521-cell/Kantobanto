@@ -1011,28 +1011,22 @@ async function submitOrder() {
     total: getCartTotal(),
   };
 
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Отправляем...';
+const btn = document.getElementById('submitBtn');
+btn.disabled = true;
+btn.innerHTML = '<span class="spinner"></span> Отправляем...';
 
-  // Save to Firestore
-  if (window._saveOrder) {
-    try { await window._saveOrder(orderData); } catch(e) { console.log('Firestore save error:', e); }
-  }
-
-  // Also open Telegram
-  const text = buildOrderMessage(orderData);
-  const deepLink = `https://t.me/${CONTACTS.botUsername}?text=${encodeURIComponent(text)}`;
-  document.getElementById('successChipBot').href = deepLink;
-  window.open(deepLink, '_blank');
-
-  cart = []; updateBadges(); updateOrderSummary();
-  ['fName','fPhone','fUsername','fAddress','fTime','fComment'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('successOrderNum').textContent = `Заказ #${orderNum}`;
-  document.getElementById('successOverlay').classList.add('show');
-  btn.disabled = false;
-  btn.innerHTML = 'Оформить заказ';
+// Save to Firestore
+if (window._saveOrder) {
+  try { await window._saveOrder(orderData); } catch(e) { console.log('Firestore save error:', e); }
 }
+
+// === ЗДЕСЬ БЫЛИ СТРОКИ 1023-1027, ТЕПЕРЬ ТУТ СРАЗУ ИДЕТ ОЧИСТКА КОРЗИНЫ ===
+cart = []; updateBadges(); updateOrderSummary();
+['fName','fPhone','fUsername','fAddress','fTime','fComment'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+document.getElementById('successOrderNum').textContent = `Заказ #${orderNum}`;
+document.getElementById('successOverlay').classList.add('show');
+btn.disabled = false;
+btn.innerHTML = 'Оформить заказ';
 
 function buildOrderMessage(order) {
   const fmt = n => Number(n).toLocaleString('uk-UA') + ' грн';
