@@ -6,7 +6,7 @@
 <title>Fortoona — Доставка Кальянов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
 
 <!-- Firebase -->
 <script type="module">
@@ -391,6 +391,47 @@ textarea.form-input { resize: none; }
 .contact-row .row-title { font-size: 13px; font-weight: 600; }
 .contact-row .row-sub { font-size: 11px; color: var(--text-muted); }
 .contacts-footer { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-muted); }
+
+/* ======= VOICE COMMAND FAB ======= */
+.voice-fab-wrap { position: fixed; left: 16px; bottom: 90px; z-index: 200; }
+@media (min-width: 641px) { .voice-fab-wrap { bottom: 24px; } }
+.voice-fab { width: 56px; height: 56px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border-gold); color: var(--gold); font-size: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 0 8px 26px rgba(0,0,0,0.45); transition: background var(--transition), color var(--transition), transform var(--transition); }
+.voice-fab:hover { background: var(--gold-dim); transform: translateY(-1px); }
+.voice-fab.listening { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: var(--bg); animation: vfPulse 1.4s ease-in-out infinite; }
+.voice-fab.listening::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid var(--gold); opacity: 0.55; animation: vfRing 1.4s ease-out infinite; }
+@keyframes vfPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@keyframes vfRing { 0% { transform: scale(0.85); opacity: 0.65; } 100% { transform: scale(1.55); opacity: 0; } }
+.voice-caption { position: absolute; bottom: 66px; left: 0; min-width: 170px; max-width: 240px; background: var(--bg3); border: 1px solid var(--border-gold); color: var(--text-dim); font-family: var(--ff-body); font-size: 11.5px; line-height: 1.4; padding: 8px 13px; border-radius: 14px; box-shadow: 0 8px 22px rgba(0,0,0,0.4); opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity var(--transition), transform var(--transition); }
+.voice-caption.show { opacity: 1; transform: translateY(0); }
+
+/* ======= VOICE → SWEETS TRANSITION ======= */
+.voice-transition { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #090704; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; overflow: hidden; }
+.voice-transition.show { opacity: 1; pointer-events: all; animation: vtBg 2.4s ease forwards; }
+@keyframes vtBg {
+  0%   { background: radial-gradient(circle at 50% 45%, #1c1108 0%, #090704 70%); }
+  55%  { background: radial-gradient(circle at 50% 45%, #3a1a30 0%, #14090f 70%); }
+  100% { background: radial-gradient(circle at 50% 48%, #C93F70 0%, #5B2A86 55%, #1B0E22 100%); }
+}
+.vt-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.vt-particle { position: absolute; bottom: -40px; opacity: 0; animation-name: vtParticleRise; animation-timing-function: ease-out; animation-iteration-count: 1; }
+@keyframes vtParticleRise { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-108vh) rotate(220deg); opacity: 0; } }
+.vt-inner { position: relative; width: 300px; height: 210px; display: flex; align-items: center; justify-content: center; }
+.vt-stage-old, .vt-stage-new { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.vt-stage-old { opacity: 1; animation: vtOldOut 0.6s ease forwards; animation-delay: 0.45s; }
+@keyframes vtOldOut { to { opacity: 0; transform: scale(0.72) translateY(-8px); } }
+.vt-stage-old .logo-icon { font-size: 40px; }
+.vt-old-text { font-family: var(--ff-display); font-size: 24px; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; }
+.vt-stage-new { opacity: 0; transform: scale(0.4); animation: vtNewIn 0.75s cubic-bezier(.34,1.56,.64,1) forwards; animation-delay: 1.05s; }
+@keyframes vtNewIn { to { opacity: 1; transform: scale(1); } }
+.vt-mark { display: inline-flex; align-items: center; justify-content: center; width: 92px; height: 92px; border-radius: 24px; background: #5B2A86; box-shadow: 0 22px 50px -12px rgba(233,89,139,0.55); font-family: 'Fraunces', serif; font-weight: 700; font-size: 38px; line-height: 1; }
+.vt-mark .b { color: #F5C242; }
+.vt-mark .slash { color: #1B0E22; opacity: 0.85; }
+.vt-mark .h { color: #E9598B; }
+.vt-caption { font-family: var(--ff-body); font-size: 12.5px; letter-spacing: 0.04em; color: #fbe4ee; opacity: 0; animation: vtFadeIn 0.5s ease forwards; animation-delay: 1.45s; }
+@keyframes vtFadeIn { to { opacity: 1; } }
+.vt-progress { width: 160px; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.16); overflow: hidden; opacity: 0; animation: vtFadeIn 0.4s ease forwards; animation-delay: 1.45s; }
+.vt-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #F5C242, #E9598B); border-radius: 3px; animation: vtFill 1.15s ease forwards; animation-delay: 1.55s; }
+@keyframes vtFill { to { width: 100%; } }
 </style>
 </head>
 <body>
@@ -460,6 +501,28 @@ textarea.form-input { resize: none; }
   <button class="contact-fab" onclick="toggleContactDock()" aria-label="Контакты">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
   </button>
+</div>
+
+<!-- VOICE COMMAND -->
+<div class="voice-fab-wrap">
+  <div class="voice-caption" id="voiceCaption"></div>
+  <button class="voice-fab" id="voiceFab" aria-label="Голосовая команда" title="Скажи «сладости»">🎙</button>
+</div>
+
+<!-- VOICE → SWEETS TRANSITION SCREEN -->
+<div class="voice-transition" id="voiceTransition">
+  <div class="vt-particles" id="vtParticles"></div>
+  <div class="vt-inner">
+    <div class="vt-stage-old">
+      <span class="logo-icon">🌿</span>
+      <span class="vt-old-text">FORTOONA</span>
+    </div>
+    <div class="vt-stage-new">
+      <span class="vt-mark"><span class="b">B</span><span class="slash">\</span><span class="h">H</span></span>
+      <div class="vt-caption">Переключаемся на сладости…</div>
+      <div class="vt-progress"><div class="vt-progress-bar"></div></div>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -1060,6 +1123,111 @@ function initContactLinks() {
   document.getElementById('chipBot').href = `https://t.me/${CONTACTS.botUsername}`;
   document.getElementById('chipPersonal').href = `https://t.me/${CONTACTS.personalUsername}`;
   document.getElementById('chipPhone').href = `tel:${CONTACTS.phone}`;
+}
+
+// ===================================================================
+// VOICE COMMAND — переход на сайт сладостей "B\H"
+// ===================================================================
+// Ссылка на сайт сладостей. Если файл называется иначе — поменяйте здесь.
+const SWEETS_URL = 'terms.html';
+// Любое из этих слов в распознанной фразе запускает переход
+const SWEETS_TRIGGERS = ['сладост', 'сладк', 'конфет', 'десерт', 'вкусняш', 'печень', 'капкейк', 'зефир', 'макарон'];
+
+let recognition = null;
+let isListening = false;
+let voiceCaptionTimer = null;
+
+function initVoiceCommand() {
+  const btn = document.getElementById('voiceFab');
+  if (!btn) return;
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognitionAPI) {
+    btn.addEventListener('click', () => {
+      showVoiceCaption('Голосовые команды не поддерживаются в этом браузере 😔 Попробуйте Chrome.', 3200);
+    });
+    return;
+  }
+
+  recognition = new SpeechRecognitionAPI();
+  recognition.lang = 'ru-RU';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) transcript += e.results[i][0].transcript;
+    showVoiceCaption('🎙 ' + transcript);
+    const lower = transcript.toLowerCase();
+    if (SWEETS_TRIGGERS.some(t => lower.includes(t))) {
+      stopListening();
+      showVoiceCaption('Услышал! Переключаю на сладости 🍬', 1500);
+      setTimeout(startSweetsTransition, 350);
+    }
+  };
+  recognition.onerror = (e) => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      showVoiceCaption('Нет доступа к микрофону. Разрешите доступ в настройках браузера.', 3200);
+    }
+    stopListening();
+  };
+  recognition.onend = () => {
+    // Если пользователь не останавливал вручную — перезапускаем прослушивание
+    if (isListening) { try { recognition.start(); } catch(e) {} }
+  };
+
+  btn.addEventListener('click', () => {
+    if (isListening) stopListening(); else startListening();
+  });
+}
+
+function startListening() {
+  if (!recognition) return;
+  try { recognition.start(); } catch(e) {}
+  isListening = true;
+  document.getElementById('voiceFab').classList.add('listening');
+  showVoiceCaption('Слушаю… скажи «сладости»', 2600);
+}
+
+function stopListening() {
+  if (!recognition) return;
+  isListening = false;
+  try { recognition.stop(); } catch(e) {}
+  const btn = document.getElementById('voiceFab');
+  if (btn) btn.classList.remove('listening');
+}
+
+function showVoiceCaption(text, autoHideMs) {
+  const c = document.getElementById('voiceCaption');
+  if (!c) return;
+  c.textContent = text;
+  c.classList.add('show');
+  clearTimeout(voiceCaptionTimer);
+  if (autoHideMs) voiceCaptionTimer = setTimeout(() => c.classList.remove('show'), autoHideMs);
+}
+
+function startSweetsTransition() {
+  const ov = document.getElementById('voiceTransition');
+  if (!ov) { window.location.href = SWEETS_URL; return; }
+  spawnVtParticles();
+  ov.classList.add('show');
+  setTimeout(() => { window.location.href = SWEETS_URL; }, 2450);
+}
+
+function spawnVtParticles() {
+  const wrap = document.getElementById('vtParticles');
+  if (!wrap) return;
+  const emojis = ['🍬', '🧁', '🍭', '🍫', '🎀'];
+  let html = '';
+  for (let i = 0; i < 16; i++) {
+    const left = Math.random() * 100;
+    const dur = (2 + Math.random() * 1.4).toFixed(2);
+    const delay = (Math.random() * 0.7).toFixed(2);
+    const size = Math.round(14 + Math.random() * 16);
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    html += `<span class="vt-particle" style="left:${left}%;font-size:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;">${emoji}</span>`;
+  }
+  wrap.innerHTML = html;
 }
 
 // ===================================================================
