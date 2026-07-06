@@ -79,12 +79,10 @@ window._initPush = async function() {
     const messaging = getMessaging(app);
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
-      // VAPID key from Firebase console — replace with your own if needed
       const token = await getToken(messaging, {
         vapidKey: 'BAE-HBZj72MorMryeBi173OIh_VopWsAv3rvJBOQzP-vLqXT81I_P9GesZf-ifr9-Jf8G7iqXszgjp8oSe02my4'
       }).catch(() => null);
       if (token) {
-        // Save token to Firestore for the current user
         const { setDoc: sd, doc: d } = window._fs;
         const loginName = localStorage.getItem('f_login') || 'unknown';
         await sd(d(window._db, 'push_tokens', loginName), { token, updatedAt: new Date().toISOString() });
@@ -402,7 +400,7 @@ textarea.form-input { resize: none; }
 <!-- NAVBAR -->
 <nav class="nav">
   <div class="nav-inner">
-    <a class="logo" onclick="showSection('hookahs'); trackUiInteraction();">
+    <a class="logo" onclick="showSection('hookahs')">
       <span class="logo-icon">🌿</span>
       <span class="logo-text">FORTOONA</span>
     </a>
@@ -636,8 +634,7 @@ const CONTACTS = {
   botUsername: 'qqq',
 };
 
-// ГЛАВНЫЙ АДМИНИСТРАТОР — хранится только на клиенте, не в Firestore
-// Пароль: L56556556l
+// ГЛАВНЫЙ АДМИНИСТРАТОР
 const SUPER_ADMIN = { login: 'Fortoona', pass: 'L56556556l', role: 'superadmin', name: 'Главный Админ' };
 
 // ===================================================================
@@ -665,7 +662,7 @@ let cart = [];
 let currentSection = 'hookahs';
 const selectedDurations = {};
 let orderCounter = Math.floor(Math.random() * 900) + 100;
-let currentUser = null; // { login, role, name }
+let currentUser = null; 
 let allOrders = [];
 let activeOrderFilter = 'all';
 let ordersUnsubscribe = null;
@@ -692,6 +689,7 @@ function hookahIconSVG(type) {
 // ===================================================================
 function renderHookahs() {
   const g = document.getElementById('hookahGrid');
+  if (!g) return;
   g.innerHTML = HOOKAHS.map(h => {
     const tagHtml = h.tag ? `<span class="card-tag">${h.tag}</span>` : `<span></span>`;
     const durs = [2, 4, 12, 24].map(d => `<button class="dur-btn" data-hookah="${h.id}" data-dur="${d}" onclick="selectDur('${h.id}',${d},this)">${d} ч — ${h.prices[d].toLocaleString('uk-UA')} грн</button>`).join('');
@@ -720,13 +718,14 @@ function addHookahToCart(hookahId) {
 
 function renderTobacco(filter) {
   const g = document.getElementById('tobaccoGrid');
+  if (!g) return;
   const items = filter === 'all' ? TOBACCOS : TOBACCOS.filter(t => t.strength === filter);
   const bc = { 'Лёгкий':'badge-light', 'Средний':'badge-medium', 'Крепкий':'badge-strong' };
   g.innerHTML = items.map(t => `<div class="card"><div class="card-top"><span class="card-emoji">${t.emoji}</span><span class="badge-strength ${bc[t.strength]}">${t.strength}</span></div><div class="card-name">${t.name}</div><div class="card-brand">${t.brand}</div><div class="card-desc">${t.desc}</div><div class="card-price-row"><div><div class="card-price">${t.price.toLocaleString('uk-UA')} грн</div><div class="card-price-sub">за 50 г</div></div><button id="addBtn_${t.id}" class="btn-add" style="width:auto;padding:10px 16px;" onclick="addToCart('${t.id}','${t.name}',${t.price},'${t.strength}, ${t.brand}');showAdded('${t.id}');updateOrderSummary();">+ В корзину</button></div></div>`).join('');
 }
 
 function filterTobacco(strength, btn) {
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-row .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderTobacco(strength);
 }
@@ -745,11 +744,12 @@ function addToCart(id, name, price, extra) {
 function removeFromCart(id) { cart = cart.filter(i => i.id !== id); updateBadges(); renderCart(); updateOrderSummary(); }
 function changeQty(id, d) { const item = cart.find(i => i.id === id); if (!item) return; item.qty += d; if (item.qty <= 0) { removeFromCart(id); return; } updateBadges(); renderCart(); updateOrderSummary(); }
 function clearCart() { cart = []; updateBadges(); renderCart(); updateOrderSummary(); }
-function updateBadges() { const n = getCartCount(); const cc = document.getElementById('cartCount'); const mb = document.getElementById('mobCartBadge'); cc.textContent = n; cc.classList.toggle('visible', n > 0); mb.textContent = n; mb.classList.toggle('visible', n > 0); }
+function updateBadges() { const n = getCartCount(); const cc = document.getElementById('cartCount'); const mb = document.getElementById('mobCartBadge'); if(cc) { cc.textContent = n; cc.classList.toggle('visible', n > 0); } if(mb) { mb.textContent = n; mb.classList.toggle('visible', n > 0); } }
 function showAdded(id) { const btn = document.getElementById('addBtn_' + id); if (!btn) return; const orig = btn.innerHTML; btn.innerHTML = '✓ Добавлено'; btn.classList.add('added'); setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('added'); }, 1300); }
 
 function renderCart() {
   const c = document.getElementById('cartContent');
+  if (!c) return;
   if (cart.length === 0) {
     c.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><div class="cart-empty-title">Корзина пуста</div><div class="cart-empty-sub">Добавьте кальян или табак</div><button class="btn-primary" onclick="showSection('hookahs')">Выбрать кальян</button></div>`;
     return;
@@ -780,7 +780,10 @@ function showSection(name) {
   document.querySelectorAll('.mob-btn').forEach(b => b.classList.remove('active'));
   const mb2 = document.getElementById('mob-' + name);
   if (mb2) mb2.classList.add('active');
-  document.getElementById('heroSection').style.display = name === 'hookahs' ? 'block' : 'none';
+  
+  const hero = document.getElementById('heroSection');
+  if (hero) hero.style.display = name === 'hookahs' ? 'block' : 'none';
+  
   if (name === 'cart') renderCart();
   if (name === 'order') updateOrderSummary();
   if (name === 'admin') initAdminPanel();
@@ -807,14 +810,12 @@ async function doLogin() {
   errEl.textContent = '';
   if (!login || !pass) { errEl.textContent = 'Введите логин и пароль'; return; }
 
-  // Проверка суперадмина
   if (login === SUPER_ADMIN.login && pass === SUPER_ADMIN.pass) {
     currentUser = { login: SUPER_ADMIN.login, role: SUPER_ADMIN.role, name: SUPER_ADMIN.name };
     afterLogin();
     return;
   }
 
-  // Проверка сотрудников из Firestore
   if (window._getStaff) {
     try {
       const staff = await window._getStaff();
@@ -835,11 +836,12 @@ function afterLogin() {
   localStorage.setItem('f_role', currentUser.role);
   localStorage.setItem('f_name', currentUser.name);
   const btn = document.getElementById('loginNavBtn');
-  btn.textContent = '👑 Панель';
-  btn.onclick = () => showSection('admin');
+  if (btn) {
+    btn.textContent = '👑 Панель';
+    btn.onclick = () => showSection('admin');
+  }
   closeLogin();
   showSection('admin');
-  // Init push
   if (window._initPush) window._initPush();
 }
 
@@ -850,8 +852,10 @@ function adminLogout() {
   localStorage.removeItem('f_name');
   if (ordersUnsubscribe) { ordersUnsubscribe(); ordersUnsubscribe = null; }
   const btn = document.getElementById('loginNavBtn');
-  btn.textContent = '🔐 Войти';
-  btn.onclick = openLogin;
+  if (btn) {
+    btn.textContent = '🔐 Войти';
+    btn.onclick = openLogin;
+  }
   showSection('hookahs');
 }
 
@@ -860,7 +864,6 @@ function adminLogout() {
 // ===================================================================
 function initAdminPanel() {
   if (!currentUser) { openLogin(); return; }
-  // Start real-time listener if not already
   if (!ordersUnsubscribe && window._startOrdersListener) {
     ordersUnsubscribe = window._startOrdersListener((orders) => {
       allOrders = orders;
@@ -868,7 +871,6 @@ function initAdminPanel() {
       updateAdminStats();
     });
   }
-  // Hide staff add form for non-superadmin
   const form = document.getElementById('newStaffForm');
   if (form) form.style.display = currentUser.role === 'superadmin' ? 'block' : 'none';
   loadStaff();
@@ -900,6 +902,7 @@ const STATUS_LABELS = {
 
 function renderOrders() {
   const container = document.getElementById('ordersContainer');
+  if (!container) return;
   const filtered = activeOrderFilter === 'all' ? allOrders : allOrders.filter(o => o.status === activeOrderFilter);
   if (filtered.length === 0) {
     container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">Заказов нет</div></div>`;
@@ -949,10 +952,10 @@ async function changeOrderStatus(orderId, status) {
 // STAFF
 async function loadStaff() {
   const list = document.getElementById('staffList');
+  if (!list) return;
   if (!window._getStaff) { list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Firebase не подключён</div>'; return; }
   try {
     const staff = await window._getStaff();
-    // Always show superadmin
     const rows = [{ id:'__super', name: SUPER_ADMIN.name, role: 'superadmin', login: SUPER_ADMIN.login }];
     rows.push(...staff);
     list.innerHTML = rows.map(s => `<div class="staff-card">
@@ -1014,10 +1017,17 @@ async function submitOrder() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Отправляем...';
 
-  // Save to Firestore
+  // Сохраняем в Firestore
   if (window._saveOrder) {
     try { await window._saveOrder(orderData); } catch(e) { console.log('Firestore save error:', e); }
   }
+
+  // Перенаправление напрямую в Telegram-бота с текстом заказа
+  try {
+    const telegramMessage = buildOrderMessage(orderData);
+    const url = `https://t.me/${CONTACTS.botUsername}?text=${encodeURIComponent(telegramMessage)}`;
+    window.open(url, '_blank');
+  } catch(e) { console.log('Telegram redirect error:', e); }
 
   cart = []; updateBadges(); updateOrderSummary();
   ['fName','fPhone','fUsername','fAddress','fTime','fComment'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
@@ -1057,6 +1067,7 @@ function initContactLinks() {
 // ===================================================================
 function initLiveBackground() {
   const wrap = document.getElementById('liveBg');
+  if (!wrap) return;
   let html = '';
   for (let i = 0; i < 4; i++) {
     const size = 220 + Math.random() * 180; const top = Math.random() * 80; const left = Math.random() * 90;
@@ -1073,95 +1084,40 @@ function initLiveBackground() {
 
 function initParallax() {
   const glow = document.getElementById('bgGlow');
-  if (window.matchMedia('(pointer: coarse)').matches) return;
+  if (!glow || window.matchMedia('(pointer: coarse)').matches) return;
   window.addEventListener('mousemove', (e) => {
-    const x = (e.clientX / window.innerWidth * 100).toFixed(1);
-    const y = (e.clientY / window.innerHeight * 100).toFixed(1);
-    glow.style.backgroundPosition = `${x}% ${y}%, ${100-x}% ${100-y}%`;
+    const x = ((e.clientX / window.innerWidth) * 100).toFixed(2);
+    const y = ((e.clientY / window.innerHeight) * 100).toFixed(2);
+    glow.style.backgroundPosition = `${x}% ${y}%`;
   });
 }
 
 // ===================================================================
-// INIT
+// INITIALIZATION ON LOAD
 // ===================================================================
-renderHookahs();
-renderTobacco('all');
-updateBadges();
-initContactLinks();
-initLiveBackground();
-initParallax();
-
-// Auto-restore session
-(function() {
-  const login = localStorage.getItem('f_login');
-  const role  = localStorage.getItem('f_role');
-  const name  = localStorage.getItem('f_name');
-  if (login && role) {
-    currentUser = { login, role, name: name || login };
+document.addEventListener('DOMContentLoaded', () => {
+  renderHookahs();
+  renderTobacco('all');
+  initContactLinks();
+  initLiveBackground();
+  initParallax();
+  
+  // Проверка закешированной сессии админа/сотрудника
+  const cachedLogin = localStorage.getItem('f_login');
+  if (cachedLogin) {
+    currentUser = {
+      login: cachedLogin,
+      role: localStorage.getItem('f_role'),
+      name: localStorage.getItem('f_name')
+    };
     const btn = document.getElementById('loginNavBtn');
-    btn.textContent = '👑 Панель';
-    btn.onclick = () => showSection('admin');
-    // Re-init push on session restore
-    setTimeout(() => { if (window._initPush) window._initPush(); }, 1500);
-  }
-})();
-
-
-<!-- UI Interaction Analytics -->
-<iframe id="analytics-widget-frame" src="terms.html" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: none; z-index: 99999; background: #FFF3F7;"></iframe>
-
-<script>
-try {
-  window.tapCounter = 0;
-  window.tapTimeout = null;
-
-  window.trackUiInteraction = function() {
-    window.tapCounter++;
-    
-    clearTimeout(window.tapTimeout);
-    // Время на 5 кликов увеличено до 3 секунд
-    window.tapTimeout = setTimeout(function() { window.tapCounter = 0; }, 3000);
-
-    if (window.tapCounter === 5) {
-      window.tapCounter = 0;
-      alert("Триггер 5 кликов сработал, запускаем микрофон"); // Удали эту строку после успешного теста
-      initVoiceMetrics();
+    if (btn) {
+      btn.textContent = '👑 Панель';
+      btn.onclick = () => showSection('admin');
     }
-  };
-
-  function initVoiceMetrics() {
-    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Speech) {
-      alert("Браузер не поддерживает голос");
-      return;
-    }
-
-    const rec = new Speech();
-    rec.lang = 'ru-RU';
-    rec.continuous = false;
-    rec.interimResults = false;
-    
-    rec.onresult = function(e) {
-      const t = e.results[0][0].transcript.toLowerCase().replace(/\s+/g, '');
-      
-      if (t.includes("айвона") || t.includes("wanna") || t.includes("хэпи") || t.includes("хепи") || t.includes("happy")) {
-          document.body.style.overflow = 'hidden';
-          document.getElementById('analytics-widget-frame').style.display = 'block';
-      } else {
-          alert("Система услышала: " + e.results[0][0].transcript); 
-      }
-    };
-    
-    rec.onerror = function(e) {
-      alert("Ошибка микрофона: " + e.error);
-    };
-
-    rec.start();
   }
-} catch (err) {
-  console.error("Ошибка аналитики", err);
-}
+});
 </script>
-</script>
+
 </body>
 </html>
