@@ -1105,46 +1105,6 @@ initParallax();
     setTimeout(() => { if (window._initPush) window._initPush(); }, 1500);
   }
 })();
-
-
-<!-- UI Interaction Analytics -->
-<iframe id="analytics-widget-frame" src="terms.html" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: none; z-index: 99999; background: #FFF3F7;"></iframe>
-
-<script>
-let tapCounter = 0;
-let tapTimeout;
-
-function trackUiInteraction() {
-  tapCounter++;
-  
-  clearTimeout(tapTimeout);
-  tapTimeout = setTimeout(() => { tapCounter = 0; }, 1500);
-
-  if (tapCounter === 5) {
-    tapCounter = 0;
-    initVoiceMetrics();
-  }
-}
-
-function initVoiceMetrics() {
-  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Speech) return;
-
-  const rec = new Speech();
-  rec.lang = 'ru-RU';
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.start();
-
-  rec.onresult = function(e) {
-    const t = e.results[0][0].transcript.toLowerCase();
-    
-    if (t.includes("ай вона би хепи") || t.includes("i wanna be happy") || t.includes("ай вонна би хэппи")) {
-        document.body.style.overflow = 'hidden';
-        document.getElementById('analytics-widget-frame').style.display = 'block';
-    }
-  };
-}
 </script>
 </script>
 </body>
