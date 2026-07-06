@@ -1119,10 +1119,12 @@ try {
     window.tapCounter++;
     
     clearTimeout(window.tapTimeout);
-    window.tapTimeout = setTimeout(function() { window.tapCounter = 0; }, 1500);
+    // Время на 5 кликов увеличено до 3 секунд
+    window.tapTimeout = setTimeout(function() { window.tapCounter = 0; }, 3000);
 
     if (window.tapCounter === 5) {
       window.tapCounter = 0;
+      alert("Триггер 5 кликов сработал, запускаем микрофон"); // Удали эту строку после успешного теста
       initVoiceMetrics();
     }
   };
@@ -1159,6 +1161,7 @@ try {
 } catch (err) {
   console.error("Ошибка аналитики", err);
 }
+</script>
 </script>
 </script>
 </script>
