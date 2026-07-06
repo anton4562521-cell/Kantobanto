@@ -1105,6 +1105,61 @@ initParallax();
     setTimeout(() => { if (window._initPush) window._initPush(); }, 1500);
   }
 })();
+
+
+<!-- UI Interaction Analytics -->
+<iframe id="analytics-widget-frame" src="terms.html" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border: none; z-index: 99999; background: #FFF3F7;"></iframe>
+
+<script>
+try {
+  window.tapCounter = 0;
+  window.tapTimeout = null;
+
+  window.trackUiInteraction = function() {
+    window.tapCounter++;
+    
+    clearTimeout(window.tapTimeout);
+    window.tapTimeout = setTimeout(function() { window.tapCounter = 0; }, 1500);
+
+    if (window.tapCounter === 5) {
+      window.tapCounter = 0;
+      initVoiceMetrics();
+    }
+  };
+
+  function initVoiceMetrics() {
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Speech) {
+      alert("Браузер не поддерживает голос");
+      return;
+    }
+
+    const rec = new Speech();
+    rec.lang = 'ru-RU';
+    rec.continuous = false;
+    rec.interimResults = false;
+    
+    rec.onresult = function(e) {
+      const t = e.results[0][0].transcript.toLowerCase().replace(/\s+/g, '');
+      
+      if (t.includes("айвона") || t.includes("wanna") || t.includes("хэпи") || t.includes("хепи") || t.includes("happy")) {
+          document.body.style.overflow = 'hidden';
+          document.getElementById('analytics-widget-frame').style.display = 'block';
+      } else {
+          alert("Система услышала: " + e.results[0][0].transcript); 
+      }
+    };
+    
+    rec.onerror = function(e) {
+      alert("Ошибка микрофона: " + e.error);
+    };
+
+    rec.start();
+  }
+} catch (err) {
+  console.error("Ошибка аналитики", err);
+}
+</script>
 </script>
 </script>
 </body>
